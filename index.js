@@ -1,27 +1,29 @@
 $(document).ready(function (){
-var options = {
-		valueNames: ["material", "quantity", "price"]
+	getListWeb();
+	var options = {
+		valueNames: ["banco", "venta", "compra"]
 	},
 	documentTable = new List("mdl-table", options);
 
-$($("th.sort")[0]).trigger("click", function() {
-	console.log("clicked");
+	$($("th.sort")[0]).trigger("click", function() {
+		console.log("clicked");
+	});
+
+	$("input.search").on("keyup", function(e) {
+		if (e.keyCode === 27) {
+			$(e.currentTarget).val("");
+			documentTable.search("");
+		}
+	});
+
+	//getList();
 });
 
-$("input.search").on("keyup", function(e) {
-	if (e.keyCode === 27) {
-		$(e.currentTarget).val("");
-		documentTable.search("");
-	}
-});
-getList();
-});
-
-function getList(){
+function getListMobile(){
 	var header='<li class="mdl-list__item mdl-list__item--two-line"><span class="mdl-list__item-primary-content">';
 	var retLogo='';
 	var pc="";
-	var pv="";
+	var pv="";	
 	var footer='<span class="mdl-list__item-secondary-content">'+                 
            		'<a class="mdl-list__item-secondary-action" href="#"><img src="images/ic_action_graph_s.png" class="material-icons demo-conversion"></a></span>'+
              	'<span class="mdl-list__item-secondary-content">'+                  
@@ -36,16 +38,58 @@ function getList(){
             if (res != null) {            	
             	res = res.replace(/'/g,"\"");
             	res = $.parseJSON(res);            	
-                $.each(res, function (j, item) {   
+                $.each(res, function (j, item) {
                 	retLogo='<img src="images/'+getLogo(item.BANCO_NAME)+'" class="material-icons mdl-list__item-avatar"><span>'+item.BANCO_NAME+'</span>';
                 	pc='<span class="mdl-list__item-sub-title">Venta: $'+item.DL_PV+'</span>';
                   	pv='<span class="mdl-list__item-sub-title">Compra: $'+item.DL_PC+'</span></span>';
                   	html+=header+retLogo+pc+pv+footer;                   
-                });                
+                });                         
             }
         }
     });
-    $('#ListaBancos').html(html);
+    $('#ListaBancos').html(html);   
+}
+function getListWeb(){
+	var header='<thead><tr><th class="mdl-data-table__cell--non-numeric sort" data-sort="banco">Banco</th><th class="sort" data-sort="venta">Venta</th><th class="sort" data-sort="compra">Compra</th><th>Conversion</th></tr></thead><tbody class="list">';
+	var convPic='<td><a class="mdl-list__item-secondary-action" href="http://google.com"><img src="images/calculator.png" class="material-icons demo-conversion"></a></td>';
+	var banco='';
+	var pc="";
+	var pv="";	
+  	var html='';
+  	var row='';
+  	var promPc=0;
+	var promPv=0;
+	var contList=0;
+ 	$.ajax({
+        type: "GET",
+        dataType: "text",
+        url: "http://ramonfe.github.io/casadecambio/index.html",        
+        async: false,
+        success: function (res) {
+            if (res != null) {            	
+            	res = res.replace(/'/g,"\"");
+            	res = $.parseJSON(res);            	
+                $.each(res, function (j, item) {
+                	contList++;
+                	promPc=Number(promPc)+Number(item.DL_PC);
+                	promPv=Number(promPv)+Number(item.DL_PV);                   	
+                	banco='<td class="mdl-data-table__cell--non-numeric banco"><img src="images/'+getLogo(item.BANCO_NAME)+'" class="material-icons mdl-list__item-avatar"> '+item.BANCO_NAME+'</td>';
+                	pc='<td class="venta">'+Number(item.DL_PV).toFixed(2)+'</td>';
+                  	pv='<td class="compra">'+Number(item.DL_PC).toFixed(2)+'</td>';
+                  	row+='<tr>'+banco+pc+pv+convPic+'</tr>';                   
+                });
+                html=header+row+'</tbody>';   
+                if (contList>0)
+                {                	
+                	promPc=promPc/contList;
+                	promPv=promPv/contList;
+                }                   
+            }
+        }
+    });
+    $('#mdl-table').html(html);
+    $('#prom-pv').html('Venta $'+promPv.toFixed(2));
+    $('#prom-pc').html('Compra $'+promPc.toFixed(2));
 }
 function getLogo(bankName)
 {
