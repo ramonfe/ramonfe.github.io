@@ -1,5 +1,6 @@
 $(document).ready(function (){
 	getListWeb();
+	getRefreshDate();
 	var options = {
 		valueNames: ["banco", "venta", "compra"]
 	},
@@ -18,7 +19,25 @@ $(document).ready(function (){
 
 	//getList();
 });
-
+function getRefreshDate()
+{
+	var d = new Date ();
+	var month = new Array();
+	month[0] = "Ene";
+	month[1] = "Feb";
+	month[2] = "Mar";
+	month[3] = "Abr";
+	month[4] = "May";
+	month[5] = "Jun";
+	month[6] = "Jul";
+	month[7] = "Ago";
+	month[8] = "Sep";
+	month[9] = "Oct";
+	month[10] = "Nov.";
+	month[11] = "Dec";
+	var lstRefresh = month[d.getMonth()]+" "+d.getDate()+ ", "+d.getHours()+":"+d.getMinutes();
+	$('#lstRefresh').html(lstRefresh);
+}
 function getListMobile(){
 	var header='<li class="mdl-list__item mdl-list__item--two-line"><span class="mdl-list__item-primary-content">';
 	var retLogo='';
